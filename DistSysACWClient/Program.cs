@@ -20,7 +20,11 @@ namespace DistSysACWClient
 
         static void Main(string[] args)
         {
-            UserClient client = new UserClient("http://distsysacw.azurewebsites.net/6170585/api/");
+            UserClient client = new UserClient();
+
+            if (client.BaseUri == null)
+                client.BaseUri = "http://distsysacw.azurewebsites.net/6170585/api/";
+
             Console.WriteLine("Hello. What would you like to do?");
 
             string userInput = "";
@@ -37,7 +41,7 @@ namespace DistSysACWClient
 
                 if (command.Length < 2)
                 {
-                    Console.WriteLine("All commands have two parts at minimum. Please try again.");
+                    Console.WriteLine("Most commands have two parts at minimum. Did you mean \"Exit\"? Please try again.");
                     continue;
                 }
 

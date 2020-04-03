@@ -37,6 +37,34 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine($"Base URI updated. New URI is {_userClient.BaseUri}.");
         }
 
+        public void SaveSettings()
+        {
+            _userClient.SaveSettings();
+            Console.WriteLine($"Saved Settings To {_userClient.SettingsFilePath}");
+        }
+
+        public void LoadSettings()
+        {
+            _userClient.LoadSettings();
+            Console.WriteLine($"Loaded Settings From {_userClient.SettingsFilePath}");
+        }
+
+        public void AutoSave()
+        {
+            Console.WriteLine($"Auto save is currently set to {_userClient.AutoSave}");
+        }
+
+        public void SetAutoSave(string autosave)
+        {
+            if (autosave.ToLower() == "true")
+                _userClient.AutoSave = true;
+            else
+            if (autosave.ToLower() == "false")
+                _userClient.AutoSave = false;
+
+            Console.WriteLine($"Updated so auto save is set to {autosave}.");
+        }
+
         public async Task Clear()
         {
             var request = _userClient.CreateRequestPath("other/clear");
