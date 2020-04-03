@@ -8,20 +8,19 @@ using System.Threading.Tasks;
 
 namespace DistSysACWClient.CommandHandlers
 {
-    class TalkBack
+    class TalkBackCommandHandler
     {
-        private static TalkBack _instance = null;
-        public static TalkBack GetInstance(UserClient client)
+        private static TalkBackCommandHandler _instance = null;
+        public static TalkBackCommandHandler GetInstance(UserClient client)
         {
             if (_instance == null)
-                _instance = new TalkBack(client);
+                _instance = new TalkBackCommandHandler(client);
 
             return _instance;
         }
 
         private UserClient _userClient;
-
-        private TalkBack(UserClient client)
+        private TalkBackCommandHandler(UserClient client)
         {
             _userClient = client;
         }

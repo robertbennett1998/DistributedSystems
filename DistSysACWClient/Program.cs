@@ -6,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DistSysACWClient.Extensions;
@@ -29,6 +30,9 @@ namespace DistSysACWClient
                 Console.Clear();
                 Console.WriteLine(userInput);
 
+                if (userInput == "Exit")
+                    continue;
+
                 var command = userInput.Split(" ");
 
                 if (command.Length < 2)
@@ -37,7 +41,7 @@ namespace DistSysACWClient
                     continue;
                 }
 
-                var classInfo = Assembly.GetCallingAssembly().GetType(CommandHandlerNamespace + command[0]);
+                var classInfo = Assembly.GetCallingAssembly().GetType(CommandHandlerNamespace + command[0] + "CommandHandler");
                 if (classInfo == null)
                 {
                     Console.WriteLine($"Couldn't resolve the first part of the command path \"{command[0]}\". Please try again.");
@@ -70,12 +74,19 @@ namespace DistSysACWClient
                 foreach (var commandParameter in command.Skip(2).Take(command.Length - 2))
                     parameters.Add((object)commandParameter);
 
-                var commandTask = methodInfo.InvokeAsync(constructionMethod.Invoke(null, new object[] { client }), parameters.ToArray());
-                
-                if (!commandTask.IsCompleted)
-                    Console.WriteLine("...please wait...");
+                if (methodInfo.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) as AsyncStateMachineAttribute != null)
+                {
+                    var commandTask = methodInfo.InvokeAsync(constructionMethod.Invoke(null, new object[] { client }), parameters.ToArray());
 
-                while (!commandTask.IsCompleted) ;
+                    if (!commandTask.IsCompleted)
+                        Console.WriteLine("...please wait...");
+
+                    while (!commandTask.IsCompleted) ;
+                }
+                else
+                {
+                    methodInfo.Invoke(constructionMethod.Invoke(null, new object[] { client }), parameters.ToArray());
+                }
 
                 Console.WriteLine("What would you like to do next ?");
             } while (userInput != "Exit");

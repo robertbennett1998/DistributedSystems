@@ -44,7 +44,10 @@ namespace DistSysACW.Services
                 throw new UserAlreadyExistsException("Oops.This username is already in use. Please try again with a new username.");
 
             var key = Guid.NewGuid().ToString();
-            
+
+            if (_userContext.Users.Count() == 0)
+                role = User.Role.Admin;
+
             _userContext.Users.Add(new User() { UserName = userName, ApiKey = key, UserRole = role });
             await _userContext.SaveChangesAsync();
             
@@ -54,6 +57,11 @@ namespace DistSysACW.Services
         public async Task<bool> DoesUserExist(string userName)
         {
             return await Task.Run(() => _userContext.Users.Any((u) => u.UserName == userName));
+        }
+
+        public void DropAllUsers()
+        {
+            _userContext.Users.RemoveRange(_userContext.Users);
         }
 
         public async Task<User> GetUser(string apiKey)
