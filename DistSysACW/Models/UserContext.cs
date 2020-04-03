@@ -16,7 +16,6 @@ namespace DistSysACW.Models
         public DbSet<User> Users { get; set; }
 
         //TODO: Task13
-
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=DistSysACW;");

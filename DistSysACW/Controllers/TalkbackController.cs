@@ -22,22 +22,14 @@ namespace DistSysACW.Controllers
         [HttpGet]
         public string Hello()
         {
-            #region TASK1
             return "Hello World";
-            // TODO: add api/talkback/hello response
-            #endregion
         }
 
         [HttpGet]
         public IActionResult Sort([FromQuery]int[] integers)
         {
-            #region TASK1
             Array.Sort(integers);
             return Ok(integers);
-            // TODO: 
-            // sort the integers into ascending order
-            // send the integers back as the api/talkback/sort response
-            #endregion
         }
     }
 }

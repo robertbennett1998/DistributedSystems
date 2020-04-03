@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using DistSysACW.Exceptions;
+using DistSysACW.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System;
@@ -13,27 +15,24 @@ namespace DistSysACW.Filters
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-            try
-            {
-                AuthorizeAttribute authAttribute = (AuthorizeAttribute)context.ActionDescriptor.EndpointMetadata.Where(e => e.GetType() == typeof(AuthorizeAttribute)).FirstOrDefault();
 
-                if (authAttribute != null)
-                {
-                    string[] roles = authAttribute.Roles.Split(',');
-                    foreach (string role in roles)
-                    {
-                        if (context.HttpContext.User.IsInRole(role))
-                        {
-                            return;
-                        }
-                    }
-                    throw new UnauthorizedAccessException();
-                }
-            }
-            catch
+            AuthorizeAttribute authAttribute = (AuthorizeAttribute)context.ActionDescriptor.EndpointMetadata.Where(e => e.GetType() == typeof(AuthorizeAttribute)).FirstOrDefault();
+
+            if (authAttribute != null)
             {
-                context.HttpContext.Response.StatusCode = 401;
-                context.Result = new JsonResult("Unauthorized. Check ApiKey in Header is correct.");
+                string[] roles = authAttribute.Roles.Split(',');
+                foreach (string role in roles)
+                {
+                    if (context.HttpContext.User.IsInRole(role))
+                    {
+                        return;
+                    }
+                }
+
+                if (roles.All(s => s == User.Role.Admin.ToString()))
+                    throw new UserRoleException("Unauthorized. Admin access only.");
+
+                throw new UserRoleException("Unauthorized. Check ApiKey in Header is correct.");
             }
         }
     }
