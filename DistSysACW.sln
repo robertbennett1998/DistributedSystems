@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistSysACW", "DistSysACW\Di
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DistSysACWClient", "DistSysACWClient\DistSysACWClient.csproj", "{A48141B4-127C-447A-8067-01FE7B0FA6AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DistSysACW.Tests", "DistSysACW.Tests\DistSysACW.Tests.csproj", "{A3E69380-95E7-4B9D-BEA6-2886C87ACB43}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{A48141B4-127C-447A-8067-01FE7B0FA6AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A48141B4-127C-447A-8067-01FE7B0FA6AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A48141B4-127C-447A-8067-01FE7B0FA6AA}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3E69380-95E7-4B9D-BEA6-2886C87ACB43}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3E69380-95E7-4B9D-BEA6-2886C87ACB43}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3E69380-95E7-4B9D-BEA6-2886C87ACB43}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3E69380-95E7-4B9D-BEA6-2886C87ACB43}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
