@@ -11,6 +11,7 @@ using System.Security.Cryptography;
 using System.Threading.Tasks;
 using DistSysACWClient.Attributes;
 using DistSysACWClient.Extensions;
+using DistSysACWClient.Services;
 using Newtonsoft.Json;
 
 namespace DistSysACWClient
@@ -23,10 +24,24 @@ namespace DistSysACWClient
         {
             Injector injector = new Injector();
             injector.Register<ICryptoService, CryptoService>();
-            injector.Register<IUserClient, UserClient>();
+            injector.Register<IClientService, ClientService>();
+            injector.Register<ISettingsService, SettingsService>();
 
-            if (injector.Resolve<IUserClient>().BaseUri == null)
-                injector.Resolve<IUserClient>().BaseUri = "http://distsysacw.azurewebsites.net/6170585/api/";
+            ICryptoService cryptoService = injector.Resolve<ICryptoService>();
+            IClientService clientService = injector.Resolve<IClientService>();
+            ISettingsService settingsService = injector.Resolve<ISettingsService>();
+
+            if (File.Exists(settingsService.SettingsFilePath))
+            {
+                settingsService.LoadSettings();
+            }
+            else //Set default settings
+            {
+                clientService.BaseUri = "http://distsysacw.azurewebsites.net/6170585/api/";
+                clientService.AutoSave = true;
+                clientService.ClearUserInfo();
+                cryptoService.Configure("");
+            }
 
             Console.WriteLine("Hello. What would you like to do?");
 

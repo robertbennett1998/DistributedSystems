@@ -1,4 +1,5 @@
 ﻿using DistSysACWClient.Attributes;
+using DistSysACWClient.Services;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -11,8 +12,8 @@ namespace DistSysACWClient.CommandHandlers
 {
     public class UserCommandHandler
     {
-        private IUserClient _userClient;
-        public UserCommandHandler(IUserClient client)
+        private IClientService _userClient;
+        public UserCommandHandler(IClientService client)
         {
             _userClient = client;
         }
@@ -20,17 +21,15 @@ namespace DistSysACWClient.CommandHandlers
         [Command()]
         public async Task Get(string username)
         {
-            var request = _userClient.CreateRequestPath("user/new") + "?username=" + username;
-            var response = await _userClient.HttpClient.GetAsync(request);
+            HttpResponseMessage response = await _userClient.GetAsync($"user/new?username={username}");
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
         [Command()]
         public async Task Post(string username)
         {
-            var request = _userClient.CreateRequestPath("user/new");
             var content = new StringContent($"\"{username}\"", Encoding.UTF8, "application/json");
-            var response = await _userClient.HttpClient.PostAsync(request, content);
+            HttpResponseMessage response = await _userClient.PostAsync($"user/new", content: content);
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 Console.WriteLine($"Got API Key");
@@ -60,16 +59,13 @@ namespace DistSysACWClient.CommandHandlers
         [Command()]
         public async Task Delete()
         {
-            if (_userClient.Username == null || _userClient.ApiKey == null)
+            if (_userClient.Username == null || _userClient.ApiKey == "")
             {
                 Console.WriteLine("You need to do a User Post or User Set first");
                 return;
             }
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Delete, _userClient.CreateRequestPath("user/removeuser") + "?username=" + _userClient.Username);
-            request.Headers.Add("ApiKey", _userClient.ApiKey);
-
-            var response = await _userClient.HttpClient.SendAsync(request);
+            HttpResponseMessage response = await _userClient.DeleteAsync($"user/removeuser?username={_userClient.Username}", includeApiKey: true);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
             _userClient.ClearUserInfo();
         }
@@ -77,23 +73,14 @@ namespace DistSysACWClient.CommandHandlers
         [Command()]
         public async Task Role(string username, string role)
         {
-            if (_userClient.ApiKey == null)
+            if (_userClient.ApiKey == "")
             {
                 Console.WriteLine("You need to do a User Post or User Set first");
                 return;
             }
 
-            HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, _userClient.CreateRequestPath("user/changerole"));
-            request.Headers.Add("ApiKey", _userClient.ApiKey);
-            request.Content = new StringContent($"{{\"username\": \"{username}\", \"{role}\": \"User\"}}");
-
-            var response = await _userClient.HttpClient.SendAsync(request);
-
-            //if (response.StatusCode != HttpStatusCode.OK)
-            //{
-            //    Console.WriteLine($"Request not ok. Error code {response.StatusCode} - {response.StatusCode.ToString()}.");
-            //}
-
+            var content = new StringContent($"{{\"username\": \"{username}\", \"{role}\": \"User\"}}");
+            HttpResponseMessage response = await _userClient.PostAsync($"user/removeuser?username={_userClient.Username}", includeApiKey: true, content: content);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
     }

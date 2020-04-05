@@ -1,24 +1,38 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
+using System.Xml;
 using CoreExtensions;
 
-namespace DistSysACW.Services
+namespace DistSysACWClient.Services
 {
     public class CryptoService : ICryptoService
     {
         private readonly RSACryptoServiceProvider _rsaCryptoServiceProvider;
-        public CryptoService()
+        private readonly ISettingsService _settingsService;
+        public CryptoService(ISettingsService settingsService)
         {
+            _settingsService = settingsService;
+
             CspParameters cspParameters = new CspParameters();
             cspParameters.Flags = CspProviderFlags.UseMachineKeyStore;
             _rsaCryptoServiceProvider = new RSACryptoServiceProvider(cspParameters);
         }
 
-        public string PublicKeyXmlConfiguration { get; private set; } = null;
+        public string PublicKeyXmlConfiguration 
+        { 
+            get
+            {
+                return _settingsService.Pull<string>("PublicKeyConfig");
+            }
+
+            private set
+            {
+                _settingsService.Push("PublicKeyConfig", value);
+                _settingsService.SaveSettings();
+            }
+        }
 
         public byte[] Encrypt(byte[] data)
         {
@@ -48,8 +62,15 @@ namespace DistSysACW.Services
 
         public void Configure(string publicKeyXml)
         {
-            _rsaCryptoServiceProvider.FromXmlStringCore22(publicKeyXml);
-            PublicKeyXmlConfiguration = publicKeyXml;
+            try
+            {
+                _rsaCryptoServiceProvider.FromXmlStringCore22(publicKeyXml);
+                PublicKeyXmlConfiguration = publicKeyXml;
+            }
+            catch (XmlException)
+            {
+                PublicKeyXmlConfiguration = "";
+            }
         }
     }
 }

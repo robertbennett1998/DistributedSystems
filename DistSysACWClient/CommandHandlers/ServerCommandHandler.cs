@@ -1,4 +1,5 @@
 ﻿using DistSysACWClient.Attributes;
+using DistSysACWClient.Services;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -9,8 +10,8 @@ namespace DistSysACWClient.CommandHandlers
 {
     public class ServerCommandHandler
     {
-        private IUserClient _userClient;
-        public ServerCommandHandler(IUserClient client)
+        private IClientService _userClient;
+        public ServerCommandHandler(IClientService client)
         {
             _userClient = client;
         }
@@ -40,15 +41,13 @@ namespace DistSysACWClient.CommandHandlers
         [Command()]
         public void SaveSettings()
         {
-            _userClient.SaveSettings();
-            Console.WriteLine($"Saved Settings To {_userClient.SettingsFilePath}");
+            throw new NotImplementedException();
         }
 
         [Command()]
         public void LoadSettings()
         {
-            _userClient.LoadSettings();
-            Console.WriteLine($"Loaded Settings From {_userClient.SettingsFilePath}");
+            throw new NotImplementedException();
         }
 
         [Command("Show the current value for the auto save setting.")]
@@ -72,8 +71,7 @@ namespace DistSysACWClient.CommandHandlers
         [Command("Resets the server to it's original state.")]
         public async Task Clear()
         {
-            var request = _userClient.CreateRequestPath("other/clear");
-            var response = await _userClient.HttpClient.GetAsync(request);
+            var response = await _userClient.GetAsync("other/clear");
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
     }

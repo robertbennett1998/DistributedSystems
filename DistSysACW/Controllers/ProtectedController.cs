@@ -29,7 +29,7 @@ namespace DistSysACW.Controllers
 
         [Authorize(Roles = "Admin,User")]
         [HttpGet("hello")]
-        public async Task<string> Hello_Get()
+        public string Hello_Get()
         {
             return $"Hello {HttpContext.User.FindFirst(ClaimTypes.Name).Value}";
         }
@@ -59,6 +59,13 @@ namespace DistSysACW.Controllers
         public string GetPublicKey()
         {
             return _cryptoService.GetPublicKey();
+        }
+
+        [Authorize(Roles = "Admin,User")]
+        [HttpGet("sign")]
+        public string Sign([FromQuery]string message)
+        {
+            return BitConverter.ToString(_cryptoService.Sign(Encoding.ASCII.GetBytes(message)));
         }
     }
 }

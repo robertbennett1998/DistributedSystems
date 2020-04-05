@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace DistSysACWClient
+namespace DistSysACWClient.Exceptions
 {
     [Serializable]
     internal class AlreadyRegisteredException : Exception

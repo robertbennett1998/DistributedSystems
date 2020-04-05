@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DistSysACWClient.Exceptions;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -77,7 +78,7 @@ namespace DistSysACWClient
                     foreach (var constructorParameter in constructorInfo.GetParameters())
                         parameters.Add(Resolve(constructorParameter.ParameterType));
                 }
-                catch (FailedToResolveTypeException e)
+                catch (FailedToResolveTypeException)
                 {
                     continue;
                 }
