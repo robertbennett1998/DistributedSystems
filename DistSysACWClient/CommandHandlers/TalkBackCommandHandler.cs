@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DistSysACWClient.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -25,12 +26,14 @@ namespace DistSysACWClient.CommandHandlers
             _userClient = client;
         }
 
+        [Command()]
         public async Task Hello()
         {
             var response = await _userClient.HttpClient.GetAsync(_userClient.CreateRequestPath("talkback/hello"));
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
+        [Command()]
         public async Task Sort(string numbersToSort)
         {
             var request = _userClient.CreateRequestPath("talkback/sort") + "?integers=" + numbersToSort.Replace("[", "").Replace("]", "").Replace(",", "&integers=");

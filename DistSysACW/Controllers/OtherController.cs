@@ -19,9 +19,10 @@ namespace DistSysACW.Controllers
         }
 
         [HttpGet("clear")]
-        public void Clear()
+        public string Clear()
         {
             _userService.DropAllUsers();
+            return "Success, all data cleared.";
         }
     }
 }

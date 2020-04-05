@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DistSysACWClient.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Http;
@@ -25,6 +26,7 @@ namespace DistSysACWClient.CommandHandlers
             _userClient = client;
         }
 
+        [Command()]
         public async Task Get(string username)
         {
             var request = _userClient.CreateRequestPath("user/new") + "?username=" + username;
@@ -32,6 +34,7 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
+        [Command()]
         public async Task Post(string username)
         {
             var request = _userClient.CreateRequestPath("user/new");
@@ -48,12 +51,14 @@ namespace DistSysACWClient.CommandHandlers
             }
         }
 
+        [Command()]
         public void Set(string username, string apikey)
         {
             _userClient.SetUserInfo(username, apikey);
             Console.WriteLine("Stored");
         }
 
+        [Command("Shows the information for the currently stored user.")]
         public void Info()
         {
             Console.WriteLine("Current User Info:");
@@ -61,6 +66,7 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine($"\tApi Key: {_userClient.ApiKey}");
         }
 
+        [Command()]
         public async Task Delete()
         {
             if (_userClient.Username == null || _userClient.ApiKey == null)
@@ -77,6 +83,7 @@ namespace DistSysACWClient.CommandHandlers
             _userClient.ClearUserInfo();
         }
 
+        [Command()]
         public async Task Role(string username, string role)
         {
             if (_userClient.ApiKey == null)

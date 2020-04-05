@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DistSysACWClient.Attributes;
+using System;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -23,6 +24,7 @@ namespace DistSysACWClient.CommandHandlers
             _userClient = client;
         }
 
+        [Command()]
         public async Task Hello()
         {
             if (_userClient.ApiKey == null)
@@ -38,6 +40,7 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
+        [Command()]
         public async Task SHA1(string message)
         {
             if (_userClient.ApiKey == null)
@@ -53,6 +56,7 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
+        [Command()]
         public async Task SHA256(string message)
         {
             if (_userClient.ApiKey == null)

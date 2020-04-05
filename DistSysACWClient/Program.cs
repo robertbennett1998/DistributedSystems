@@ -9,6 +9,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Security.Cryptography;
 using System.Threading.Tasks;
+using DistSysACWClient.Attributes;
 using DistSysACWClient.Extensions;
 using Newtonsoft.Json;
 
@@ -16,7 +17,7 @@ namespace DistSysACWClient
 {
     class Client
     {
-        static string CommandHandlerNamespace = "DistSysACWClient.CommandHandlers.";
+        const string CommandHandlerSuffix = "CommandHandler";
 
         static void Main(string[] args)
         {
@@ -37,6 +38,13 @@ namespace DistSysACWClient
                 if (userInput == "Exit")
                     continue;
 
+                if (userInput == "Help")
+                {
+                    PrintCommandList();
+                    Console.WriteLine("What would you like to do next ?");
+                    continue;
+                }
+
                 var command = userInput.Split(" ");
 
                 if (command.Length < 2)
@@ -45,13 +53,14 @@ namespace DistSysACWClient
                     continue;
                 }
 
-                var classInfo = Assembly.GetCallingAssembly().GetType(CommandHandlerNamespace + command[0] + "CommandHandler");
+                var classInfo = Assembly.GetCallingAssembly().GetTypes().FirstOrDefault(t => t.Name == command[0] + CommandHandlerSuffix);
                 if (classInfo == null)
                 {
                     Console.WriteLine($"Couldn't resolve the first part of the command path \"{command[0]}\". Please try again.");
                     continue;
                 }
 
+                //TODO: Store an instance in a dict so they aren't constantly created...
                 var constructionMethod = classInfo.GetMethod("GetInstance", BindingFlags.Static | BindingFlags.Public);
 
                 if (constructionMethod == null)
@@ -60,10 +69,10 @@ namespace DistSysACWClient
                     continue;
                 }
 
-                var methodInfo = classInfo.GetMethod(command[1], BindingFlags.Instance | BindingFlags.Public);
+                var methodInfo = classInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(m => m.GetCustomAttribute<CommandAttribute>() != null).FirstOrDefault(m => m.Name == command[1]);
                 if (methodInfo == null)
                 {
-                    Console.WriteLine($"Couldn't resolve the second part of the command path \"{command[1]}\". Please try again.");
+                    Console.WriteLine($"{command[0]} has no command \"{command[1]}\". Please try again or type \"Help\" to display a list of available commands.");
                     continue;
                 }
 
@@ -86,14 +95,48 @@ namespace DistSysACWClient
                         Console.WriteLine("...please wait...");
 
                     while (!commandTask.IsCompleted) ;
+
+                    commandTask.ContinueWith((task) =>
+                    {
+                        if (task.Exception != null)
+                        {
+                            Console.WriteLine($"Error: {task.Exception.Message}");
+                        }
+                    });
                 }
                 else
                 {
-                    methodInfo.Invoke(constructionMethod.Invoke(null, new object[] { client }), parameters.ToArray());
+                    try
+                    {
+                        methodInfo.Invoke(constructionMethod.Invoke(null, new object[] { client }), parameters.ToArray());
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine($"Error: {e.Message}");
+                    }
                 }
 
                 Console.WriteLine("What would you like to do next ?");
             } while (userInput != "Exit");
+        }
+
+        private static void PrintCommandList()
+        {
+            var commandHandlers = Assembly.GetCallingAssembly().GetTypes().Where(t => t.Name.EndsWith(CommandHandlerSuffix));
+            foreach (var commandHandler in commandHandlers)
+            {
+                var commandMethods = commandHandler.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(m => m.GetCustomAttribute<CommandAttribute>() != null);
+
+                if (commandMethods.Count() > 0)
+                    Console.WriteLine($"{commandHandler.Name.Replace(CommandHandlerSuffix, "")}:");
+
+                foreach (var commandMethod in commandMethods)
+                {
+                    Console.WriteLine($"\t[{commandHandler.Name.Replace(CommandHandlerSuffix, "")}] {commandMethod.Name} - {commandMethod.GetCustomAttribute<CommandAttribute>().Description}");
+                }
+            }
+
+            Console.WriteLine("Exit - Exit the client application.");
         }
     }
 }

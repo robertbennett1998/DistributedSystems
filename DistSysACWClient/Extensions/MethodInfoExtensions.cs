@@ -12,7 +12,12 @@ namespace DistSysACWClient.Extensions
         {
             dynamic awaitable = @this.Invoke(obj, parameters);
             await awaitable;
-            return awaitable.GetAwaiter().GetResult();
+
+            //If the task has a generic type then get the result. Otherwise just return null as it is void...
+            if (@this.ReturnType.IsGenericType)
+                return awaitable.GetAwaiter().GetResult();
+
+            return null;
         }
     }
 }
