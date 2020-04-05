@@ -59,9 +59,10 @@ namespace DistSysACW.Services
             return await Task.Run(() => _userContext.Users.Any((u) => u.UserName == userName));
         }
 
-        public void DropAllUsers()
+        public async Task DropAllUsers()
         {
             _userContext.Users.RemoveRange(_userContext.Users);
+            await _userContext.SaveChangesAsync();
         }
 
         public async Task<User> GetUser(string apiKey)

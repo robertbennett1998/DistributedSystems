@@ -21,10 +21,12 @@ namespace DistSysACWClient
 
         static void Main(string[] args)
         {
-            UserClient client = new UserClient();
+            Injector injector = new Injector();
+            injector.Register<ICryptoService, CryptoService>();
+            injector.Register<IUserClient, UserClient>();
 
-            if (client.BaseUri == null)
-                client.BaseUri = "http://distsysacw.azurewebsites.net/6170585/api/";
+            if (injector.Resolve<IUserClient>().BaseUri == null)
+                injector.Resolve<IUserClient>().BaseUri = "http://distsysacw.azurewebsites.net/6170585/api/";
 
             Console.WriteLine("Hello. What would you like to do?");
 
@@ -60,14 +62,7 @@ namespace DistSysACWClient
                     continue;
                 }
 
-                //TODO: Store an instance in a dict so they aren't constantly created...
-                var constructionMethod = classInfo.GetMethod("GetInstance", BindingFlags.Static | BindingFlags.Public);
-
-                if (constructionMethod == null)
-                {
-                    Console.WriteLine($"Implementation Error: No GetInstance method for the {command[0]} command handler. Please try again.");
-                    continue;
-                }
+                var classInstance = injector.Construct(classInfo);
 
                 var methodInfo = classInfo.GetMethods(BindingFlags.Instance | BindingFlags.Public).Where(m => m.GetCustomAttribute<CommandAttribute>() != null).FirstOrDefault(m => m.Name == command[1]);
                 if (methodInfo == null)
@@ -89,7 +84,7 @@ namespace DistSysACWClient
 
                 if (methodInfo.GetCustomAttribute(typeof(AsyncStateMachineAttribute)) as AsyncStateMachineAttribute != null)
                 {
-                    var commandTask = methodInfo.InvokeAsync(constructionMethod.Invoke(null, new object[] { client }), parameters.ToArray());
+                    var commandTask = methodInfo.InvokeAsync(classInstance, parameters.ToArray());
 
                     if (!commandTask.IsCompleted)
                         Console.WriteLine("...please wait...");
@@ -108,7 +103,7 @@ namespace DistSysACWClient
                 {
                     try
                     {
-                        methodInfo.Invoke(constructionMethod.Invoke(null, new object[] { client }), parameters.ToArray());
+                        methodInfo.Invoke(classInstance, parameters.ToArray());
                     }
                     catch (Exception e)
                     {

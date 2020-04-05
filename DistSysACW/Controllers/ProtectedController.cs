@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Mvc;
 using DistSysACW.Exceptions;
 using System.Security.Cryptography;
 using System.Text;
+using System.Security.Claims;
 
 namespace DistSysACW.Controllers
 {
@@ -17,22 +18,25 @@ namespace DistSysACW.Controllers
     [ApiController]
     public class ProtectedController : ControllerBase
     {
-        private IUserService _userService;
-        public ProtectedController(IUserService userService)
+        private readonly IUserService _userService;
+        private readonly ICryptoService _cryptoService;
+
+        public ProtectedController(IUserService userService, ICryptoService cryptoService)
         {
             _userService = userService;
+            _cryptoService = cryptoService;
         }
 
         [Authorize(Roles = "Admin,User")]
         [HttpGet("hello")]
-        public async Task<string> Hello_Get([FromHeader]string apiKey)
+        public async Task<string> Hello_Get()
         {
-            return $"Hello {(await _userService.GetUser(apiKey)).UserName}";
+            return $"Hello {HttpContext.User.FindFirst(ClaimTypes.Name).Value}";
         }
 
         [Authorize(Roles = "Admin,User")]
         [HttpGet("sha1")]
-        public string Sha1_Get([FromHeader]string apiKey = null, [FromQuery]string message = null)
+        public string Sha1_Get([FromQuery]string message = null)
         {
             if (message == null)
                 throw new BadParametersException(HttpStatusCode.BadRequest, "Bad Request");
@@ -42,12 +46,19 @@ namespace DistSysACW.Controllers
 
         [Authorize(Roles = "Admin,User")]
         [HttpGet("sha256")]
-        public string Sha256_Get([FromHeader]string apiKey = null, [FromQuery]string message = null)
+        public string Sha256_Get([FromQuery]string message = null)
         {
             if (message == null)
                 throw new BadParametersException(HttpStatusCode.BadRequest, "Bad Request");
 
             return BitConverter.ToString(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "");
+        }
+
+        [Authorize(Roles = "Admin,User")]
+        [HttpGet("getpublickey")]
+        public string GetPublicKey()
+        {
+            return _cryptoService.GetPublicKey();
         }
     }
 }

@@ -11,17 +11,8 @@ namespace DistSysACWClient.CommandHandlers
 {
     class TalkBackCommandHandler
     {
-        private static TalkBackCommandHandler _instance = null;
-        public static TalkBackCommandHandler GetInstance(UserClient client)
-        {
-            if (_instance == null)
-                _instance = new TalkBackCommandHandler(client);
-
-            return _instance;
-        }
-
-        private UserClient _userClient;
-        private TalkBackCommandHandler(UserClient client)
+        private IUserClient _userClient;
+        public TalkBackCommandHandler(IUserClient client)
         {
             _userClient = client;
         }

@@ -24,6 +24,7 @@ namespace DistSysACW
         {
             services.AddDbContext<UserContext>();
             services.AddScoped<IUserService, UserService>();
+            services.AddSingleton<ICryptoService, CryptoService>();
             services.AddMvc(options => {
                 options.AllowEmptyInputInBodyModelBinding = true;
                 options.Filters.Add(new Filters.AuthFilter());})

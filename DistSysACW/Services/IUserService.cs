@@ -13,6 +13,6 @@ namespace DistSysACW.Services
         Task<bool> RemoveUser(string apiKey);
         Task<bool> DoesUserExist(string userName);
         Task ChangeUserRole(string userName, string role);
-        void DropAllUsers();
+        Task DropAllUsers();
     }
 }

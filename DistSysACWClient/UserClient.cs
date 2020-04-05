@@ -7,7 +7,7 @@ using System.Text;
 namespace DistSysACWClient
 {
     //Rob: 7cc33135-2caf-4669-8d32-a6c9a7aef2e1
-    public class UserClient
+    public class UserClient : IUserClient
     {
 
         private string _baseUri;

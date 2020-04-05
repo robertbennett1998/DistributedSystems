@@ -9,22 +9,15 @@ namespace DistSysACWClient.CommandHandlers
 {
     class ProtectedCommandHandler
     {
-        private static ProtectedCommandHandler _instance = null;
-        public static ProtectedCommandHandler GetInstance(UserClient client)
-        {
-            if (_instance == null)
-                _instance = new ProtectedCommandHandler(client);
-
-            return _instance;
-        }
-
-        private UserClient _userClient;
-        public ProtectedCommandHandler(UserClient client)
+        private IUserClient _userClient;
+        private ICryptoService _cryptoService;
+        public ProtectedCommandHandler(IUserClient client, ICryptoService cryptoService)
         {
             _userClient = client;
+            _cryptoService = cryptoService;
         }
 
-        [Command()]
+        [Command]
         public async Task Hello()
         {
             if (_userClient.ApiKey == null)
@@ -40,7 +33,7 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
-        [Command()]
+        [Command]
         public async Task SHA1(string message)
         {
             if (_userClient.ApiKey == null)
@@ -56,7 +49,7 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
-        [Command()]
+        [Command]
         public async Task SHA256(string message)
         {
             if (_userClient.ApiKey == null)
@@ -70,6 +63,26 @@ namespace DistSysACWClient.CommandHandlers
 
             var response = await _userClient.HttpClient.SendAsync(request);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
+        }
+
+        [Command]
+        public async Task Get(string toGet)
+        {
+            if (toGet == "PublicKey")
+            {
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, _userClient.CreateRequestPath($"protected/getpublickey"));
+                request.Headers.Add("ApiKey", _userClient.ApiKey);
+
+                var response = await _userClient.HttpClient.SendAsync(request);
+                var publicKeyXml = await response.Content.ReadAsStringAsync();
+                _cryptoService.Configure(publicKeyXml);
+
+                Console.WriteLine("Got Public Key");
+            }
+            else
+            {
+                Console.WriteLine($"Invalid parameter \"{toGet}\", did you mean \"PublicKey\".");
+            }
         }
     }
 }

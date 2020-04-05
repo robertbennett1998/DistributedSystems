@@ -9,17 +9,8 @@ namespace DistSysACWClient.CommandHandlers
 {
     public class ServerCommandHandler
     {
-        private static ServerCommandHandler _instance = null;
-        public static ServerCommandHandler GetInstance(UserClient client)
-        {
-            if (_instance == null)
-                _instance = new ServerCommandHandler(client);
-
-            return _instance;
-        }
-
-        private UserClient _userClient;
-        public ServerCommandHandler(UserClient client)
+        private IUserClient _userClient;
+        public ServerCommandHandler(IUserClient client)
         {
             _userClient = client;
         }

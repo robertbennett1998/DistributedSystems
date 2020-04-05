@@ -11,17 +11,8 @@ namespace DistSysACWClient.CommandHandlers
 {
     public class UserCommandHandler
     {
-        private static UserCommandHandler _instance = null;
-        public static UserCommandHandler GetInstance(UserClient client)
-        {
-            if (_instance == null)
-                _instance = new UserCommandHandler(client);
-
-            return _instance;
-        }
-
-        private UserClient _userClient;
-        public UserCommandHandler(UserClient client)
+        private IUserClient _userClient;
+        public UserCommandHandler(IUserClient client)
         {
             _userClient = client;
         }
