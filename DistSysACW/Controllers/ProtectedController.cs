@@ -19,9 +19,9 @@ namespace DistSysACW.Controllers
     public class ProtectedController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly ICryptoService _cryptoService;
+        private readonly IRSACryptoService _cryptoService;
 
-        public ProtectedController(IUserService userService, ICryptoService cryptoService)
+        public ProtectedController(IUserService userService, IRSACryptoService cryptoService)
         {
             _userService = userService;
             _cryptoService = cryptoService;

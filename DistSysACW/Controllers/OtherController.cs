@@ -14,10 +14,12 @@ namespace DistSysACW.Controllers
     {
         private readonly IUserService _userService;
         private readonly ILoggingService _loggingService;
-        public OtherController(IUserService userService, ILoggingService loggingService)
+        private readonly ILogArchivingService _logArchivingService;
+        public OtherController(IUserService userService, ILoggingService loggingService, ILogArchivingService logArchivingService)
         {
             _userService = userService;
             _loggingService = loggingService;
+            _logArchivingService = logArchivingService;
         }
 
         [HttpGet("clear")]
@@ -25,6 +27,7 @@ namespace DistSysACW.Controllers
         {
             await _userService.DropAllUsers();
             await _loggingService.DropAllLogs();
+            await _logArchivingService.DropAllArchivedLogs();
             return "Success, all data cleared.";
         }
     }

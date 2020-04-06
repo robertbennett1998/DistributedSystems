@@ -24,11 +24,11 @@ namespace DistSysACWClient
         {
             Injector injector = new Injector();
             injector.Register<ICryptoService, CryptoService>();
-            injector.Register<IClientService, ClientService>();
+            injector.Register<IUserService, UserService>();
             injector.Register<ISettingsService, SettingsService>();
 
             ICryptoService cryptoService = injector.Resolve<ICryptoService>();
-            IClientService clientService = injector.Resolve<IClientService>();
+            IUserService clientService = injector.Resolve<IUserService>();
             ISettingsService settingsService = injector.Resolve<ISettingsService>();
 
             if (File.Exists(settingsService.SettingsFilePath))

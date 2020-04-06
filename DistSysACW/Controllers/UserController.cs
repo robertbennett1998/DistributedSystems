@@ -26,7 +26,7 @@ namespace DistSysACW.Controllers
         [HttpGet("new")]
         public async Task<string> New_Get([FromQuery]string userName = null)
         {
-            if (await _userService.DoesUserExist(userName))
+            if (await _userService.DoesUserWithUsernameExist(userName))
                 return "True - User Does Exist! Did you mean to do a POST to create a new user?";
 
             return "False - User Does Not Exist! Did you mean to do a POST to create a new user?";
@@ -42,7 +42,7 @@ namespace DistSysACW.Controllers
         [HttpDelete("removeuser")]
         public async Task<bool> RemoveUser_Delete([FromHeader]string apiKey = null, [FromQuery]string userName = null)
         {
-            if ((await _userService.GetUser(apiKey)).UserName == userName)
+            if ((await _userService.GetUserByApiKey(apiKey)).UserName == userName)
                 return await _userService.RemoveUser(apiKey);
 
             return false;

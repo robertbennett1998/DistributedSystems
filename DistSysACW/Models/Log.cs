@@ -18,5 +18,7 @@ namespace DistSysACW.Models
         public int LogId { get; set; }
         public string LogString { get; set; }
         public DateTime LogDateTime { get; set; }
+        public User User { get; internal set; }
+        public string UserApiKey { get; internal set; }
     }
 }

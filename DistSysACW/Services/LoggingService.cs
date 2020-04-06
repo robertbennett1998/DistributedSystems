@@ -27,12 +27,13 @@ namespace DistSysACW.Services
         {
             var logMessage = $"{role} {userName} made a ({verb}) request to {path}.";
             await _userService.AddLog(new Log(logMessage), apiKey);
-            Debug.WriteLine(logMessage);
+            await _userContext.SaveChangesAsync();
         }
 
         public async Task LogAuthorisedRequest(string message, string apiKey)
         {
             await _userService.AddLog(new Log(message), apiKey);
+            await _userContext.SaveChangesAsync();
         }
     }
 }

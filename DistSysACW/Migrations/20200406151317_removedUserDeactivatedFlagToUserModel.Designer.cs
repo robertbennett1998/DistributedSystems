@@ -4,14 +4,16 @@ using DistSysACW.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DistSysACW.Migrations
 {
     [DbContext(typeof(UserContext))]
-    partial class UserContextModelSnapshot : ModelSnapshot
+    [Migration("20200406151317_removedUserDeactivatedFlagToUserModel")]
+    partial class removedUserDeactivatedFlagToUserModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -36,23 +38,6 @@ namespace DistSysACW.Migrations
                     b.HasIndex("UserApiKey");
 
                     b.ToTable("Logs");
-                });
-
-            modelBuilder.Entity("DistSysACW.Models.LogArchive", b =>
-                {
-                    b.Property<int>("LogArchiveId")
-                        .ValueGeneratedOnAdd()
-                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                    b.Property<DateTime>("LogDateTime");
-
-                    b.Property<string>("LogString");
-
-                    b.Property<string>("UserApiKey");
-
-                    b.HasKey("LogArchiveId");
-
-                    b.ToTable("LogArchives");
                 });
 
             modelBuilder.Entity("DistSysACW.Models.User", b =>

@@ -10,50 +10,50 @@ namespace DistSysACWClient.CommandHandlers
 {
     class ProtectedCommandHandler
     {
-        private IClientService _userClient;
-        private ICryptoService _cryptoService;
-        public ProtectedCommandHandler(IClientService client, ICryptoService cryptoService)
+        private IUserService _userService;
+        private ICryptoService _rsaCryptoService;
+        public ProtectedCommandHandler(IUserService client, ICryptoService cryptoService)
         {
-            _userClient = client;
-            _cryptoService = cryptoService;
+            _userService = client;
+            _rsaCryptoService = cryptoService;
         }
 
         [Command]
         public async Task Hello()
         {
-            if (_userClient.ApiKey == "")
+            if (_userService.ApiKey == "")
             {
                 Console.WriteLine("You need to do a User Post or User Set first");
                 return;
             }
 
-            var response = await _userClient.GetAsync("protected/hello", includeApiKey: true);
+            var response = await _userService.GetAsync("protected/hello", includeApiKey: true);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
         [Command]
         public async Task SHA1(string message)
         {
-            if (_userClient.ApiKey == "")
+            if (_userService.ApiKey == "")
             {
                 Console.WriteLine("You need to do a User Post or User Set first");
                 return;
             }
 
-            var response = await _userClient.GetAsync($"protected/sha1?message={message}", includeApiKey: true);
+            var response = await _userService.GetAsync($"protected/sha1?message={message}", includeApiKey: true);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
         [Command]
         public async Task SHA256(string message)
         {
-            if (_userClient.ApiKey == "")
+            if (_userService.ApiKey == "")
             {
                 Console.WriteLine("You need to do a User Post or User Set first");
                 return;
             }
 
-            var response = await _userClient.GetAsync($"protected/sha256?message={message}", includeApiKey: true);
+            var response = await _userService.GetAsync($"protected/sha256?message={message}", includeApiKey: true);
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
 
@@ -62,8 +62,8 @@ namespace DistSysACWClient.CommandHandlers
         {
             if (toGet == "PublicKey")
             {
-                var response = await _userClient.GetAsync($"protected/getpublickey", includeApiKey: true);
-                _cryptoService.Configure(await response.Content.ReadAsStringAsync());
+                var response = await _userService.GetAsync($"protected/getpublickey", includeApiKey: true);
+                _rsaCryptoService.Configure(await response.Content.ReadAsStringAsync());
 
                 Console.WriteLine("Got Public Key");
             }
@@ -76,15 +76,15 @@ namespace DistSysACWClient.CommandHandlers
         [Command]
         public async Task Sign(string message)
         {
-            if (_cryptoService.PublicKeyXmlConfiguration == null)
+            if (_rsaCryptoService.PublicKeyXmlConfiguration == null)
             {
                 Console.WriteLine("Client doesn’t yet have the public key");
                 return;
             }
 
-            var response = await _userClient.GetAsync($"protected/sign?message={message}", includeApiKey: true);
+            var response = await _userService.GetAsync($"protected/sign?message={message}", includeApiKey: true);
 
-            if (_cryptoService.VerifySignature(Encoding.ASCII.GetBytes(message), GetBytesFromHexString(await response.Content.ReadAsStringAsync())))
+            if (_rsaCryptoService.VerifySignature(Encoding.ASCII.GetBytes(message), GetBytesFromHexString(await response.Content.ReadAsStringAsync())))
                 Console.WriteLine("Message was successfully signed");
             else
                 Console.WriteLine("Message was not successfully signed");

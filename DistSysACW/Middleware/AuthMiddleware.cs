@@ -20,7 +20,7 @@ namespace DistSysACW.Middleware
 
         public async Task InvokeAsync(HttpContext context, IUserService userService)
         {
-            User user = await userService.GetUser(context.Request.Headers["ApiKey"]);
+            User user = await userService.GetUserByApiKey(context.Request.Headers["ApiKey"]);
             if (user != null)
             {
                 var userIdentity = new ClaimsIdentity();

@@ -12,8 +12,8 @@ namespace DistSysACWClient.CommandHandlers
 {
     class TalkBackCommandHandler
     {
-        private IClientService _userClient;
-        public TalkBackCommandHandler(IClientService client)
+        private IUserService _userClient;
+        public TalkBackCommandHandler(IUserService client)
         {
             _userClient = client;
         }

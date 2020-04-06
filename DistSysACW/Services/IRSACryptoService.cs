@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace DistSysACW.Services
 {
-    public interface ICryptoService
+    public interface IRSACryptoService
     {
         string PublicKeyXmlConfiguration { get; }
 

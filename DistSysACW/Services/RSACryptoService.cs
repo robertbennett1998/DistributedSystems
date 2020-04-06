@@ -8,10 +8,10 @@ using CoreExtensions;
 
 namespace DistSysACW.Services
 {
-    public class CryptoService : ICryptoService
+    public class RSACryptoService : IRSACryptoService
     {
         private readonly RSACryptoServiceProvider _rsaCryptoServiceProvider;
-        public CryptoService()
+        public RSACryptoService()
         {
             CspParameters cspParameters = new CspParameters();
             cspParameters.Flags = CspProviderFlags.UseMachineKeyStore;

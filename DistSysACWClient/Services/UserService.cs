@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace DistSysACWClient.Services
 {
-    public class ClientService : IClientService
+    public class UserService : IUserService
     {
         public string BaseUri
         {
@@ -67,7 +67,7 @@ namespace DistSysACWClient.Services
 
         private readonly HttpClient _httpClient;
         private readonly ISettingsService _settingsService;
-        public ClientService(ISettingsService settingsService)
+        public UserService(ISettingsService settingsService)
         {
             _settingsService = settingsService;
 

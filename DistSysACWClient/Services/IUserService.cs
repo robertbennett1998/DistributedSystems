@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace DistSysACWClient.Services
 {
-    public interface IClientService
+    public interface IUserService
     {
         string ApiKey { get; }
         bool AutoSave { get; set; }

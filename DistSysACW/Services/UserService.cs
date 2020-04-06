@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using DistSysACW.CoreExtensions;
 using DistSysACW.Exceptions;
 using DistSysACW.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Primitives;
 
 namespace DistSysACW.Services
@@ -12,22 +14,23 @@ namespace DistSysACW.Services
     public class UserService : IUserService
     {
         private readonly UserContext _userContext;
-
-        public UserService(UserContext userContext)
+        private readonly ILogArchivingService _logArchivingService;
+        public UserService(UserContext userContext, ILogArchivingService logArchivingService)
         {
-            this._userContext = userContext;
+            _userContext = userContext;
+            _logArchivingService = logArchivingService;
         }
 
         public async Task AddLog(Log log, string apiKey)
         {
-            var user = await GetUser(apiKey);
+            var user = await GetUserByApiKey(apiKey);
             user.Logs.Add(log);
             await _userContext.SaveChangesAsync();
         }
 
         public async Task ChangeUserRole(string userName, string role)
         {
-            var user = await Task.Run(() => _userContext.Users.FirstOrDefault(u => u.UserName == userName));
+            var user = await GetUserByUsername(userName);
 
             if (user == null)
                 throw new UserDoesNotExistException("NOT DONE: Role does not exist");
@@ -47,7 +50,7 @@ namespace DistSysACW.Services
             if (userName == null)
                 throw new BadParametersException("Oops. Make sure your body contains a string with your username and your Content - Type is Content - Type:application / json");
 
-            if (await DoesUserExist(userName))
+            if (await DoesUserWithUsernameExist(userName))
                 throw new UserAlreadyExistsException("Oops.This username is already in use. Please try again with a new username.");
 
             var key = Guid.NewGuid().ToString();
@@ -61,9 +64,13 @@ namespace DistSysACW.Services
             return key;
         }
 
-        public async Task<bool> DoesUserExist(string userName)
+        public async Task<bool> DoesUserWithUsernameExist(string userName)
         {
-            return await Task.Run(() => _userContext.Users.Any((u) => u.UserName == userName));
+            return await Task.Run(async () =>
+                {
+                    var user = await GetUserByUsername(userName);
+                    return user != null;
+                });
         }
 
         public async Task DropAllUsers()
@@ -72,21 +79,33 @@ namespace DistSysACW.Services
             await _userContext.SaveChangesAsync();
         }
 
-        public async Task<User> GetUser(string apiKey)
+        public async Task<User> GetUserByApiKey(string apiKey)
         {
-            return await Task.Run(() => _userContext.Users.FirstOrDefault(u => u.ApiKey == apiKey));
+            return await Task.Run(() =>
+                {
+                    return _userContext.Users.Include(u => u.Logs).FirstOrDefault(u => u.ApiKey == apiKey);
+                });
+        }
+
+        public async Task<User> GetUserByUsername(string username)
+        {
+            return await Task.Run(() =>
+            {
+               return _userContext.Users.Include(u => u.Logs).FirstOrDefault(u => u.UserName == username);
+            });
         }
 
         public async Task<bool> RemoveUser(string apiKey)
         {
             return await Task.Run(async () =>
             {
-                var user = _userContext.Users.FirstOrDefault();
+                var user = await GetUserByApiKey(apiKey);
 
                 if (user == null)
                     return false;
 
-                _userContext.Users.Remove(user);
+                await _logArchivingService.ArchiveLogsForUser(user);
+                _userContext.Remove(user);
                 await _userContext.SaveChangesAsync();
 
                 return true;

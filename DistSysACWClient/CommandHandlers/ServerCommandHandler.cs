@@ -10,8 +10,8 @@ namespace DistSysACWClient.CommandHandlers
 {
     public class ServerCommandHandler
     {
-        private IClientService _userClient;
-        public ServerCommandHandler(IClientService client)
+        private IUserService _userClient;
+        public ServerCommandHandler(IUserService client)
         {
             _userClient = client;
         }
