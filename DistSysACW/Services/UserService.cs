@@ -18,6 +18,13 @@ namespace DistSysACW.Services
             this._userContext = userContext;
         }
 
+        public async Task AddLog(Log log, string apiKey)
+        {
+            var user = await GetUser(apiKey);
+            user.Logs.Add(log);
+            await _userContext.SaveChangesAsync();
+        }
+
         public async Task ChangeUserRole(string userName, string role)
         {
             var user = await Task.Run(() => _userContext.Users.FirstOrDefault(u => u.UserName == userName));

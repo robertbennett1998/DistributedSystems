@@ -49,7 +49,7 @@ namespace DistSysACWClient.Services
                 try
                 {
                     foreach (var setting in _settings)
-                        if (setting.Key != "" && setting.Value != "")
+                        if (setting.Key != "")
                             settingsFile.WriteLine($"{setting.Key}::={setting.Value.Replace(" ", "").Replace("\n", "").Replace("\r", "")}");
                 }
                 catch (Exception e)

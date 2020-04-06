@@ -15,7 +15,6 @@ namespace DistSysACW.Filters
     {
         public void OnAuthorization(AuthorizationFilterContext context)
         {
-
             AuthorizeAttribute authAttribute = (AuthorizeAttribute)context.ActionDescriptor.EndpointMetadata.Where(e => e.GetType() == typeof(AuthorizeAttribute)).FirstOrDefault();
 
             if (authAttribute != null)

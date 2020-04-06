@@ -4,6 +4,7 @@ using DistSysACW.Models;
 using DistSysACW.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Internal;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,10 +25,13 @@ namespace DistSysACW
         {
             services.AddDbContext<UserContext>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<ILoggingService, LoggingService>();
             services.AddSingleton<ICryptoService, CryptoService>();
-            services.AddMvc(options => {
-                options.AllowEmptyInputInBodyModelBinding = true;
-                options.Filters.Add(new Filters.AuthFilter());})
+            services.AddMvc(options => 
+                {
+                    options.AllowEmptyInputInBodyModelBinding = true;
+                    options.Filters.Add(new Filters.AuthFilter());
+                })
                 .SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
         }
 
@@ -45,7 +49,9 @@ namespace DistSysACW
                 app.UseHsts();
             }
 
-            app.UseExceptionStatusCodeHandler();
+            app.UseEndpointRouting()
+               .UseLogAuthorisedRequestsMiddleware()
+               .UseStatusExceptionHandlerMiddleware();
 
             //app.UseHttpsRedirection();
             app.UseMvc();

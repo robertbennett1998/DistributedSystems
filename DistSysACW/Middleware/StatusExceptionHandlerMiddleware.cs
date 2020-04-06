@@ -5,22 +5,23 @@ using System.Threading.Tasks;
 using DistSysACW.Exceptions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DistSysACW.Middleware
 {
-    // You may need to install the Microsoft.AspNetCore.Http.Abstractions package into your project
-    public class StatusExceptionHandler
+    public class StatusExceptionHandlerMiddleware
     {
         private readonly RequestDelegate _next;
 
-        public StatusExceptionHandler(RequestDelegate next)
+        public StatusExceptionHandlerMiddleware(RequestDelegate next)
         {
             _next = next;
         }
 
         public async Task Invoke(HttpContext httpContext)
         {
+            var endpoint = httpContext.Features.Get<IEndpointFeature>()?.Endpoint;
             try
             {
                 await _next(httpContext);
@@ -30,17 +31,14 @@ namespace DistSysACW.Middleware
                 httpContext.Response.StatusCode = (int)e.StatusCode;
                 await httpContext.Response.WriteAsync(e.Message);
             }
-
-            return;
         }
     }
 
-    // Extension method used to add the middleware to the HTTP request pipeline.
-    public static class StatusExceptionHandlerExtensions
+    public static class StatusExceptionHandlerMiddlewareExtensions
     {
-        public static IApplicationBuilder UseExceptionStatusCodeHandler(this IApplicationBuilder builder)
+        public static IApplicationBuilder UseStatusExceptionHandlerMiddleware(this IApplicationBuilder builder)
         {
-            return builder.UseMiddleware<StatusExceptionHandler>();
+            return builder.UseMiddleware<StatusExceptionHandlerMiddleware>();
         }
     }
 }

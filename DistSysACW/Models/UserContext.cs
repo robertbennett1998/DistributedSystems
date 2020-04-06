@@ -14,8 +14,9 @@ namespace DistSysACW.Models
         }
 
         public DbSet<User> Users { get; set; }
+        public DbSet<Log> Logs { get; set; }
 
-        //TODO: Task13
+        //TODO: Fix cascade delete with logs... 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             optionsBuilder.UseSqlServer("Server=(localdb)\\mssqllocaldb;Database=DistSysACW;");

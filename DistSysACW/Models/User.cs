@@ -8,6 +8,11 @@ namespace DistSysACW.Models
 {
     public class User
     {
+
+        public User()
+        {
+            Logs = new List<Log>();
+        }
         public enum Role
         {
             User,
@@ -18,12 +23,6 @@ namespace DistSysACW.Models
         public string ApiKey { get; set; }
         public string UserName { get; set; }
         public Role UserRole { get; set; }
-        public User()
-        {
-        }
+        public List<Log> Logs { get; set; }
     }
-
-    #region Task13?
-    // TODO: You may find it useful to add code here for Logging
-    #endregion
 }

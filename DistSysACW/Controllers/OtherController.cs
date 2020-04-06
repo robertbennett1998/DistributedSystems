@@ -8,20 +8,23 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace DistSysACW.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/other")]
     [ApiController]
     public class OtherController : ControllerBase
     {
-        private IUserService _userService;
-        public OtherController(IUserService userService)
+        private readonly IUserService _userService;
+        private readonly ILoggingService _loggingService;
+        public OtherController(IUserService userService, ILoggingService loggingService)
         {
             _userService = userService;
+            _loggingService = loggingService;
         }
 
         [HttpGet("clear")]
         public async Task<string> Clear()
         {
             await _userService.DropAllUsers();
+            await _loggingService.DropAllLogs();
             return "Success, all data cleared.";
         }
     }
