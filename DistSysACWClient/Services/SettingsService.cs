@@ -41,43 +41,62 @@ namespace DistSysACWClient.Services
         /// <summary>
         /// WARNING: Removes all whitespace from the settings...
         /// </summary>
-        public void SaveSettings()
+        public bool SaveSettings()
         {
-            Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath));
-            using (StreamWriter settingsFile = new StreamWriter(SettingsFilePath))
+            try
             {
-                try
+                Directory.CreateDirectory(Path.GetDirectoryName(SettingsFilePath));
+                using (StreamWriter settingsFile = new StreamWriter(SettingsFilePath))
                 {
-                    foreach (var setting in _settings)
-                        if (setting.Key != "")
-                            settingsFile.WriteLine($"{setting.Key}::={setting.Value.Replace(" ", "").Replace("\n", "").Replace("\r", "")}");
+                    try
+                    {
+                        foreach (var setting in _settings)
+                            if (setting.Key != "")
+                                settingsFile.WriteLine($"{setting.Key}::={setting.Value.Replace(" ", "").Replace("\n", "").Replace("\r", "")}");
+                    }
+                    catch (Exception e)
+                    {
+                        Console.WriteLine(e.Message);
+                        settingsFile.Flush();
+                        settingsFile.Close();
+                        return false;
+                    }
                 }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-                settingsFile.Flush();
-                settingsFile.Close();
             }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
 
-        public void LoadSettings()
+        public bool LoadSettings()
         {
             if (!File.Exists(SettingsFilePath))
-                return;
+                return false;
 
-            using (StreamReader settingsFile = new StreamReader(SettingsFilePath))
+            try
             {
-                foreach (var line in settingsFile.ReadToEnd().Replace("\r", "").Split("\n"))
+                using (StreamReader settingsFile = new StreamReader(SettingsFilePath))
                 {
-                    var parts = line.Split("::=", 2);
-                    if (parts.Length == 2)
-                        _settings[parts[0]] = parts[1];
-                    else
-                        _settings[parts[0]] = "";
+                    foreach (var line in settingsFile.ReadToEnd().Replace("\r", "").Split("\n"))
+                    {
+                        var parts = line.Split("::=", 2);
+                        if (parts.Length == 2)
+                            _settings[parts[0]] = parts[1];
+                        else
+                            _settings[parts[0]] = "";
+                    }
+                    settingsFile.Close();
                 }
-                settingsFile.Close();
             }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            return true;
         }
 
         private void RaiseSettingsChangedEvent(string settingName)

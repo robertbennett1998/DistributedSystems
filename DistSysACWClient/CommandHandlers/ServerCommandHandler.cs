@@ -38,36 +38,6 @@ namespace DistSysACWClient.CommandHandlers
             Console.WriteLine($"The base URI is currently {_userClient.BaseUri}.");
         }
 
-        [Command()]
-        public void SaveSettings()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Command()]
-        public void LoadSettings()
-        {
-            throw new NotImplementedException();
-        }
-
-        [Command("Show the current value for the auto save setting.")]
-        public void AutoSave()
-        {
-            Console.WriteLine($"Auto save is currently set to {_userClient.AutoSave}");
-        }
-
-        [Command("Set whether or not the settings file should be automatically updated when a change to the settings is made (true/false).")]
-        public void SetAutoSave(string autosave)
-        {
-            if (autosave.ToLower() == "true")
-                _userClient.AutoSave = true;
-            else
-            if (autosave.ToLower() == "false")
-                _userClient.AutoSave = false;
-
-            Console.WriteLine($"Updated so auto save is set to {autosave}.");
-        }
-
         [Command("Resets the server to it's original state.")]
         public async Task Clear()
         {

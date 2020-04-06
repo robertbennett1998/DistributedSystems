@@ -8,8 +8,8 @@ namespace DistSysACWClient.Services
     {
         string SettingsFilePath { get; }
 
-        void LoadSettings();
-        void SaveSettings();
+        bool LoadSettings();
+        bool SaveSettings();
         void RegisterSettingsChangedCallback(Action<string> settingsChangedCallback);
         void UnregisterSettingsChangedCallback(Action<string> settingsChangedCallback);
         void Push<T>(string settingName, T value);
