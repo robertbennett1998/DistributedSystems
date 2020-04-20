@@ -28,6 +28,7 @@ namespace DistSysACW
             services.AddScoped<ILoggingService, LoggingService>();
             services.AddScoped<ILogArchivingService, LogArchivingService>();
             services.AddSingleton<IRSACryptoService, RSACryptoService>();
+            services.AddSingleton<IAESCryptoService, AESCryptoService>();
             services.AddMvc(options => 
                 {
                     options.AllowEmptyInputInBodyModelBinding = true;

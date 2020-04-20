@@ -11,6 +11,7 @@ using DistSysACW.Exceptions;
 using System.Security.Cryptography;
 using System.Text;
 using System.Security.Claims;
+using DistSysACW.Extensions;
 
 namespace DistSysACW.Controllers
 {
@@ -19,12 +20,14 @@ namespace DistSysACW.Controllers
     public class ProtectedController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IRSACryptoService _cryptoService;
+        private readonly IRSACryptoService _rsaCryptoService;
+        private readonly IAESCryptoService _aesCryptoService;
 
-        public ProtectedController(IUserService userService, IRSACryptoService cryptoService)
+        public ProtectedController(IUserService userService, IRSACryptoService rsaCryptoService, IAESCryptoService aesCryptoService)
         {
             _userService = userService;
-            _cryptoService = cryptoService;
+            _rsaCryptoService = rsaCryptoService;
+            _aesCryptoService = aesCryptoService;
         }
 
         [Authorize(Roles = "Admin,User")]
@@ -41,7 +44,7 @@ namespace DistSysACW.Controllers
             if (message == null)
                 throw new BadParametersException(HttpStatusCode.BadRequest, "Bad Request");
 
-            return BitConverter.ToString(SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "");
+            return BitConverter.ToString(SHA1.Create().ComputeHash(Encoding.ASCII.GetBytes(message))).Replace("-", "");
         }
 
         [Authorize(Roles = "Admin,User")]
@@ -51,21 +54,33 @@ namespace DistSysACW.Controllers
             if (message == null)
                 throw new BadParametersException(HttpStatusCode.BadRequest, "Bad Request");
 
-            return BitConverter.ToString(SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(message))).Replace("-", "");
+            return BitConverter.ToString(SHA256.Create().ComputeHash(Encoding.ASCII.GetBytes(message))).Replace("-", "");
         }
 
         [Authorize(Roles = "Admin,User")]
         [HttpGet("getpublickey")]
-        public string GetPublicKey()
+        public string GetPublicKey_Get()
         {
-            return _cryptoService.GetPublicKey();
+            return _rsaCryptoService.GetPublicKey();
         }
 
         [Authorize(Roles = "Admin,User")]
         [HttpGet("sign")]
-        public string Sign([FromQuery]string message)
+        public string Sign_Get([FromQuery]string message)
         {
-            return BitConverter.ToString(_cryptoService.Sign(Encoding.ASCII.GetBytes(message)));
+            return BitConverter.ToString(_rsaCryptoService.Sign(Encoding.ASCII.GetBytes(message)));
+        }
+
+        [Authorize(Roles = "Admin,User")]
+        [HttpGet("addfifty")]
+        public string AddFifty_Get([FromQuery]string encryptedInteger, [FromQuery]string encryptedSymKey, [FromQuery]string encryptedIV)
+        {
+            int decrytedInteger = BitConverter.ToInt32(_rsaCryptoService.Decrypt(encryptedInteger.ConvertHexStringToBytes()));
+            _aesCryptoService.Configure(_rsaCryptoService.Decrypt(encryptedSymKey.ConvertHexStringToBytes()), _rsaCryptoService.Decrypt(encryptedIV.ConvertHexStringToBytes()));
+            string encryptedIntegerPlusFifty = BitConverter.ToString(_aesCryptoService.Encrypt(Convert.ToString(decrytedInteger + 50)));
+            int decrytedIntegerPlusFifty = Convert.ToInt32(_aesCryptoService.Decrypt(encryptedIntegerPlusFifty.ConvertHexStringToBytes()));
+
+            return encryptedIntegerPlusFifty;
         }
     }
 }

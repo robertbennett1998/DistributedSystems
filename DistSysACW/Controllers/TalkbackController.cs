@@ -26,7 +26,7 @@ namespace DistSysACW.Controllers
         }
 
         [HttpGet]
-        public IActionResult Sort([FromQuery]int[] integers)
+        public IActionResult Sort([FromQuery]int[] integers = null)
         {
             Array.Sort(integers);
             return Ok(integers);

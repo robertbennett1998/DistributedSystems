@@ -1,6 +1,6 @@
 ﻿namespace DistSysACWClient.Services
 {
-    public interface ICryptoService
+    public interface IRSACryptoService
     {
         string PublicKeyXmlConfiguration { get; }
 

@@ -29,6 +29,10 @@ namespace DistSysACWClient.CommandHandlers
         public async Task Sort(string numbersToSort)
         {
             var response = await _userClient.GetAsync($"talkback/sort?integers={ numbersToSort.Replace("[", "").Replace("]", "").Replace(",", "&integers=")}");
+
+            if (response.StatusCode == HttpStatusCode.BadRequest)
+                Console.WriteLine("Bad Request");
+
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }
     }

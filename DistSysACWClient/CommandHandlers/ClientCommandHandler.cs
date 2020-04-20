@@ -32,7 +32,7 @@ namespace DistSysACWClient.CommandHandlers
         [Command]
         public void LoadSettings()
         {
-            if (_settingsService.LoadSettings();)
+            if (_settingsService.LoadSettings())
             {
                 Console.WriteLine("Loaded settings.");
             }

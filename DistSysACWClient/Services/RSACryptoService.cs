@@ -7,11 +7,11 @@ using CoreExtensions;
 
 namespace DistSysACWClient.Services
 {
-    public class CryptoService : ICryptoService
+    public class RSACryptoService : IRSACryptoService
     {
         private readonly RSACryptoServiceProvider _rsaCryptoServiceProvider;
         private readonly ISettingsService _settingsService;
-        public CryptoService(ISettingsService settingsService)
+        public RSACryptoService(ISettingsService settingsService)
         {
             _settingsService = settingsService;
 

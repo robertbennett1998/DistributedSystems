@@ -27,7 +27,7 @@ namespace DistSysACW.Middleware
 
             if (endpoint != null && endpoint.Metadata.Any(m => m.GetType() == typeof(AuthorizeAttribute)))
             {
-                await loggingService.LogAuthorisedRequest(httpContext.Request.Headers["ApiKey"], httpContext.User.FindFirst(ClaimTypes.Name).Value, httpContext.User.FindFirst(ClaimTypes.Role).Value, httpContext.Request.Method, httpContext.Request.Path.ToString());
+                await loggingService.LogAuthorisedRequest(httpContext.Request.Headers["ApiKey"], httpContext.User.FindFirst(ClaimTypes.Name)?.Value, httpContext.User.FindFirst(ClaimTypes.Role)?.Value, httpContext.Request.Method, httpContext.Request.Path.ToString());
             }
 
             await _next(httpContext);

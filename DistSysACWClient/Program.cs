@@ -23,11 +23,12 @@ namespace DistSysACWClient
         static void Main(string[] args)
         {
             Injector injector = new Injector();
-            injector.Register<ICryptoService, CryptoService>();
+            injector.Register<IRSACryptoService, RSACryptoService>();
+            injector.Register<IAESCryptoService, AESCryptoService>();
             injector.Register<IUserService, UserService>();
             injector.Register<ISettingsService, SettingsService>();
 
-            ICryptoService cryptoService = injector.Resolve<ICryptoService>();
+            IRSACryptoService rsaCryptoService = injector.Resolve<IRSACryptoService>();
             IUserService clientService = injector.Resolve<IUserService>();
             ISettingsService settingsService = injector.Resolve<ISettingsService>();
 
@@ -40,7 +41,7 @@ namespace DistSysACWClient
                 clientService.BaseUri = "http://distsysacw.azurewebsites.net/6170585/api/";
                 clientService.AutoSave = true;
                 clientService.ClearUserInfo();
-                cryptoService.Configure("");
+                rsaCryptoService.Configure("");
             }
 
             Console.WriteLine("Hello. What would you like to do?");

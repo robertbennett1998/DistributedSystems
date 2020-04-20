@@ -24,6 +24,10 @@ namespace DistSysACW.Services
         public async Task AddLog(Log log, string apiKey)
         {
             var user = await GetUserByApiKey(apiKey);
+
+            if (user == null)
+                return;
+
             user.Logs.Add(log);
             await _userContext.SaveChangesAsync();
         }
@@ -33,7 +37,7 @@ namespace DistSysACW.Services
             var user = await GetUserByUsername(userName);
 
             if (user == null)
-                throw new UserDoesNotExistException("NOT DONE: Role does not exist");
+                throw new UserDoesNotExistException("NOT DONE: Username does not exist");
 
             object newRole = null;
             if (!Enum.TryParse(typeof(User.Role), role, out newRole))
@@ -48,10 +52,10 @@ namespace DistSysACW.Services
         public async Task<string> CreateUser(string userName, User.Role role)
         {
             if (userName == null)
-                throw new BadParametersException("Oops. Make sure your body contains a string with your username and your Content - Type is Content - Type:application / json");
+                throw new BadParametersException("Oops. Make sure your body contains a string with your username and your Content-Type is Content-Type:application/json");
 
             if (await DoesUserWithUsernameExist(userName))
-                throw new UserAlreadyExistsException("Oops.This username is already in use. Please try again with a new username.");
+                throw new UserAlreadyExistsException("Oops. This username is already in use. Please try again with a new username.");
 
             var key = Guid.NewGuid().ToString();
 

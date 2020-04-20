@@ -2,20 +2,25 @@
 using DistSysACWClient.Services;
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using DistSysACWClient.Extensions;
 
 namespace DistSysACWClient.CommandHandlers
 {
     class ProtectedCommandHandler
     {
-        private IUserService _userService;
-        private ICryptoService _rsaCryptoService;
-        public ProtectedCommandHandler(IUserService client, ICryptoService cryptoService)
+        private readonly IUserService _userService;
+        private readonly IRSACryptoService _rsaCryptoService;
+        private readonly IAESCryptoService _aesCryptoService;
+
+        public ProtectedCommandHandler(IUserService client, IRSACryptoService rsaCryptoService, IAESCryptoService aesCryptoService)
         {
             _userService = client;
-            _rsaCryptoService = cryptoService;
+            _rsaCryptoService = rsaCryptoService;
+            _aesCryptoService = aesCryptoService;
         }
 
         [Command]
@@ -84,21 +89,25 @@ namespace DistSysACWClient.CommandHandlers
 
             var response = await _userService.GetAsync($"protected/sign?message={message}", includeApiKey: true);
 
-            if (_rsaCryptoService.VerifySignature(Encoding.ASCII.GetBytes(message), GetBytesFromHexString(await response.Content.ReadAsStringAsync())))
+            if (_rsaCryptoService.VerifySignature(Encoding.ASCII.GetBytes(message), (await response.Content.ReadAsStringAsync()).ConvertHexStringToBytes()))
                 Console.WriteLine("Message was successfully signed");
             else
                 Console.WriteLine("Message was not successfully signed");
         }
 
-        private byte[] GetBytesFromHexString(string toConvert)
+        [Command]
+        public async Task AddFifty(string integer)
         {
-            List<byte> bytes = new List<byte>();
-            foreach (var hexValue in toConvert.Split('-'))
-            {
-                bytes.Add(Convert.ToByte(hexValue, 16));
-            }
+            Console.WriteLine();
+            var encryptedInteger = BitConverter.ToString(_rsaCryptoService.Encrypt(BitConverter.GetBytes(Convert.ToInt32(integer))));
+            var encryptedSymKey = BitConverter.ToString(_rsaCryptoService.Encrypt(_aesCryptoService.GetSymmetricKey()));
+            var encryptedIV = BitConverter.ToString(_rsaCryptoService.Encrypt(_aesCryptoService.GetInitialisationVector()));
+            var response = await _userService.GetAsync($"protected/addfifty?encryptedInteger={encryptedInteger}&encryptedSymKey={encryptedSymKey}&encryptedIV={encryptedIV}", includeApiKey: true);
 
-            return bytes.ToArray();
+            if (response.StatusCode != HttpStatusCode.OK)
+                    
+
+            Console.WriteLine(_aesCryptoService.Decrypt((await response.Content.ReadAsStringAsync()).ConvertHexStringToBytes()));
         }
     }
 }

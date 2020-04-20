@@ -25,7 +25,7 @@ namespace DistSysACW.Services
 
         public async Task LogAuthorisedRequest(string apiKey, string userName, string role, string verb, string path)
         {
-            var logMessage = $"{role} {userName} made a ({verb}) request to {path}.";
+            var logMessage = $"{role ?? "Unkown role"} {userName ?? "Unkown user"} made a ({verb ?? "Unkown verb"}) request to {path ?? "Unkown path"}.";
             await _userService.AddLog(new Log(logMessage), apiKey);
             await _userContext.SaveChangesAsync();
         }
