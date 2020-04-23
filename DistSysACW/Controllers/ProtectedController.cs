@@ -71,14 +71,13 @@ namespace DistSysACW.Controllers
             return BitConverter.ToString(_rsaCryptoService.Sign(Encoding.ASCII.GetBytes(message)));
         }
 
-        [Authorize(Roles = "Admin,User")]
+        [Authorize(Roles = "Admin")]
         [HttpGet("addfifty")]
         public string AddFifty_Get([FromQuery]string encryptedInteger, [FromQuery]string encryptedSymKey, [FromQuery]string encryptedIV)
         {
             int decrytedInteger = BitConverter.ToInt32(_rsaCryptoService.Decrypt(encryptedInteger.ConvertHexStringToBytes()));
             _aesCryptoService.Configure(_rsaCryptoService.Decrypt(encryptedSymKey.ConvertHexStringToBytes()), _rsaCryptoService.Decrypt(encryptedIV.ConvertHexStringToBytes()));
             string encryptedIntegerPlusFifty = BitConverter.ToString(_aesCryptoService.Encrypt(Convert.ToString(decrytedInteger + 50)));
-            int decrytedIntegerPlusFifty = Convert.ToInt32(_aesCryptoService.Decrypt(encryptedIntegerPlusFifty.ConvertHexStringToBytes()));
 
             return encryptedIntegerPlusFifty;
         }

@@ -28,10 +28,31 @@ namespace DistSysACWClient.CommandHandlers
         [Command()]
         public async Task Sort(string numbersToSort)
         {
-            var response = await _userClient.GetAsync($"talkback/sort?integers={ numbersToSort.Replace("[", "").Replace("]", "").Replace(",", "&integers=")}");
+            var numbers = numbersToSort.Replace("[", "").Replace("]", "").Split(",");
+            string request = "talkback/sort";
+            bool firstNumber = true;
+            foreach (var number in numbers)
+            {
+                if (number == "")
+                    continue;
+
+                if (firstNumber)
+                {
+                    request += "?integers=" + number;
+                    firstNumber = false;
+                    continue;
+                }
+                
+                request += "&integers=" + number;
+            }
+
+            var response = await _userClient.GetAsync(request);
 
             if (response.StatusCode == HttpStatusCode.BadRequest)
+            {
                 Console.WriteLine("Bad Request");
+                return;
+            }
 
             Console.WriteLine(await response.Content.ReadAsStringAsync());
         }

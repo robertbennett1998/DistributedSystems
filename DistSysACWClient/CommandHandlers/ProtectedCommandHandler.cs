@@ -98,16 +98,36 @@ namespace DistSysACWClient.CommandHandlers
         [Command]
         public async Task AddFifty(string integer)
         {
-            Console.WriteLine();
-            var encryptedInteger = BitConverter.ToString(_rsaCryptoService.Encrypt(BitConverter.GetBytes(Convert.ToInt32(integer))));
-            var encryptedSymKey = BitConverter.ToString(_rsaCryptoService.Encrypt(_aesCryptoService.GetSymmetricKey()));
-            var encryptedIV = BitConverter.ToString(_rsaCryptoService.Encrypt(_aesCryptoService.GetInitialisationVector()));
-            var response = await _userService.GetAsync($"protected/addfifty?encryptedInteger={encryptedInteger}&encryptedSymKey={encryptedSymKey}&encryptedIV={encryptedIV}", includeApiKey: true);
+            if (_rsaCryptoService.PublicKeyXmlConfiguration == null)
+            {
+                Console.WriteLine("Client doesn’t yet have the public key");
+                return;
+            }
 
-            if (response.StatusCode != HttpStatusCode.OK)
-                    
+            try
+            {
+                var encryptedInteger = BitConverter.ToString(_rsaCryptoService.Encrypt(BitConverter.GetBytes(Convert.ToInt32(integer))));
+                var encryptedSymKey = BitConverter.ToString(_rsaCryptoService.Encrypt(_aesCryptoService.GetSymmetricKey()));
+                var encryptedIV = BitConverter.ToString(_rsaCryptoService.Encrypt(_aesCryptoService.GetInitialisationVector()));
+                var response = await _userService.GetAsync($"protected/addfifty?encryptedInteger={encryptedInteger}&encryptedSymKey={encryptedSymKey}&encryptedIV={encryptedIV}", includeApiKey: true);
 
-            Console.WriteLine(_aesCryptoService.Decrypt((await response.Content.ReadAsStringAsync()).ConvertHexStringToBytes()));
+                if (response.StatusCode == HttpStatusCode.Unauthorized)
+                {
+                    Console.WriteLine(await response.Content.ReadAsStringAsync());
+                    return;
+                }
+                else if (response.StatusCode != HttpStatusCode.OK)
+                {
+                    Console.WriteLine("An error occured!");
+                    return;
+                }
+
+                Console.WriteLine(_aesCryptoService.Decrypt((await response.Content.ReadAsStringAsync()).ConvertHexStringToBytes()));
+            }
+            catch (FormatException e)
+            {
+                Console.WriteLine("A valid integer must be given!");
+            }
         }
     }
 }
